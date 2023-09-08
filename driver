@@ -9,6 +9,18 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from tests import config
 from utilities.user import load_user_credentials_from_environment_variables
 
+
+ACCEPTED_BROWSERS = {
+    "chrome": {
+        "command_executor": LOCALHOST_URL,
+        "desired_capabilities": DesiredCapabilities.CHROME
+    },
+    "IE": {
+        "command_executor": LOCALHOST_URL,
+        "desired_capabilities": DesiredCapabilities.INTERNETEXPLORER
+    }
+}
+                        
 def get_driver(desired_browser):
     browser = ACCEPTED_BROWSERS.get(desired_browser)
 
