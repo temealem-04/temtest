@@ -1,0 +1,46 @@
+import logging
+import os
+import time
+from config.constants import BASE_DIR
+from tests import config
+from utilities import s3, slack
+
+pytest_plugins = [
+    "tests.fixtures.api",
+    "tests.fixtures.components",
+    "tests.fixtures.driver",
+    "tests.fixtures.page_objects",
+    "tests.fixtures.random_entities"
+]
+
+
+def pytest_addoption(parser):
+    parser.addoption("--browser", action="store", default="chrome", help="browser used for testing")
+
+    parser.addoption("--environment", action="store", default="staging", help="environment under test")
+
+    parser.addoption("--report_to_slack", action="store_true", default=False, help="report to slack")
+
+    parser.addoption("--test_suite_name", action="store", default="Unnamed Test Suite", help="name of the test suite")
+
+    parser.addoption("--user", action="store", default="premium", help="user for the test")
+
+
+def pytest_sessionstart(session):
+    config.browser = session.config.getoption('--browser')
+    config.environment = session.config.getoption('--environment')
+    config.report_to_slack = session.config.getoption('--report_to_slack')
+    config.test_suite_name = session.config.getoption('--test_suite_name')
+    config.user = session.config.getoption('--user')
+
+    if config.environment == 'local':
+        config.base_api_url = 'https://dev.fiscalnote.com/api'
+        config.base_ui_url = 'http://host.docker.internal:4200'
+    elif config.environment in ['dev', 'staging']:
+        config.base_api_url = f'https://app-{config.environment}.fiscalnote.com/api'
+        config.base_ui_url = f'https://{config.environment}.fiscalnote.com'
+    elif config.environment == 'app':
+        config.base_api_url = f'https://{config.environment}.fiscalnote.com/api'
+        config.base_ui_url = f'https://{config.environment}.fiscalnote.com'
+    else:
+        raise Exception("Unrecognized environment.")
