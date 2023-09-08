@@ -1,0 +1,5 @@
+def to_camel_case(string):
+    title_case = string.title()
+    words = title_case.split()
+
+    return words[0].lower() + ''.join(words[1:])
