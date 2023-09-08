@@ -1,0 +1,14 @@
+import os
+
+
+def load_user_credentials_from_environment_variables():
+    password = os.getenv('ENV_PASSWORD')
+    username = os.getenv('ENV_USERNAME')
+
+    if not password or not username:
+        raise Exception("You must set the ENV_PASSWORD and ENV_USERNAME environment variables.")
+
+    return {
+        'password': password,
+        'username': username
+    }
