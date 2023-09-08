@@ -1,0 +1,12 @@
+@pytest.fixture(scope='session')
+def authenticated_driver(home_page, login_landing_page, login_page, session_driver):
+    user_credentials = load_user_credentials_from_environment_variables()
+
+    login_landing_page.navigate()
+    login_landing_page.click_log_in_button()
+    login_page.log_in(user_credentials["username"], user_credentials["password"])
+
+    logging.info('Verify that the Home Page is displayed.')
+    assert home_page.is_displayed()
+
+    yield session_driver
