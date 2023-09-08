@@ -1,0 +1,9 @@
+authentication = ""
+base_api_url = ""
+base_ui_url = ""
+browser = ""
+driver = ""
+environment = ""
+report_to_slack = False
+test_suite_name = ""
+user = ""
