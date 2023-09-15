@@ -1,0 +1,159 @@
+import logging
+import pytest
+import os
+
+from api import files, labels
+from test_data import labels as labels_data
+
+
+@pytest.mark.regression
+@pytest.mark.drive_files
+class TestDriveFiles:
+    @pytest.fixture(scope='session', autouse=True)
+    def set_up_and_tear_down_class(self, authenticated_driver, authorization_header):
+        labels.delete_all_labels(authorization_header)
+        labels.create_labels(authorization_header, labels_data.LABELS)
+
+        yield
+
+        labels.delete_all_labels(authorization_header)
+
+    @pytest.fixture(autouse=True)
+    def set_up_and_tear_down(self, authorization_header):
+        files.delete_all_files(authorization_header)
+
+        yield
+
+        files.delete_all_files(authorization_header)
+
+    def test_drive_files_page_loads_correct_empty_state(self, drive_files_page):
+        drive_files_page.navigate()
+
+        logging.info('Verifying that the Drive Files Page has a header with text "Shared Files."')
+        assert drive_files_page.page_header.is_displayed()
+        assert drive_files_page.page_header.text == "Shared Files"
+
+        logging.info('Verifying that the main "Upload File" button is visible and has the correct text.')
+        assert drive_files_page.main_upload_file_button.is_displayed()
+        assert drive_files_page.main_upload_file_button.text == "Upload File"
+
+        logging.info('Verifying that the empty state header is visible and has the correct text.')
+        assert drive_files_page.empty_state_header.is_displayed()
+        assert drive_files_page.empty_state_header.text == 'No files have been uploaded by your team yet.'
+
+        logging.info('Verifying that the empty state description is visible and has the correct text.')
+        assert drive_files_page.empty_state_description.is_displayed()
+        assert drive_files_page.empty_state_description.text == (
+            "Start by uploading talking points, press releases, and other files. When you upload files here, "
+            "you can organize them with labels."
+        )
+
+        logging.info('Verifying that the empty state "Upload File" button is visible and has the correct text.')
+        assert drive_files_page.empty_state_upload_file_button.is_displayed()
+        assert drive_files_page.empty_state_upload_file_button.text == "Upload File"
+
+        logging.info('Verifying that no files are visible in the file table.')
+        assert drive_files_page.visible_file_count == 0
+
+    def test_user_can_open_and_close_file_modal_with_cancel_button(self, drive_files_page, file_modal):
+        drive_files_page.navigate()
+
+        logging.info('Verifying that the "Upload & Share Files" modal is not displayed.')
+        assert file_modal.is_not_displayed
+
+        drive_files_page.click_empty_state_upload_file_button()
+
+        logging.info('Verifying that the "Upload & Share Files" modal is displayed.')
+        assert file_modal.is_displayed
+        assert file_modal.header_text == "Upload & Share Files"
+
+        expected_help_text = (
+            "Upload a file to share with your organization on FiscalNote. After uploading, you can organize your"
+            " files with labels."
+        )
+        logging.info(f'Verifying that the file modal has the following help text: {expected_help_text}')
+        assert file_modal.help_text == expected_help_text
+
+        logging.info('Verifying that the file input is present.')
+        assert file_modal.file_input
+
+        logging.info('Verifying that no successful file uploads are visible.')
+        assert file_modal.successful_file_uploads == []
+
+        logging.info('Verifying that no failed file uploads are visible.')
+        assert file_modal.failed_file_uploads == []
+
+        logging.info('Verifying that no labels have been added.')
+        assert file_modal.added_labels == []
+
+        logging.info('Verifying that no linked items have been added.')
+        assert file_modal.added_linked_items == []
+
+        file_modal.click_cancel_button()
+
+        logging.info('Verifying that the "Upload & Share Files" modal is not displayed.')
+        assert file_modal.is_not_displayed
+
+    @pytest.mark.skipif(
+        os.getenv('ENV_USERNAME').startswith("regression.user@fiscalnote.com"),
+        reason='This should not be run with regression'
+    )
+    def test_user_can_open_and_close_file_modal_with_close_icon(self, confirmation_modal, drive_files_page, file_modal):
+        drive_files_page.navigate()
+
+        logging.info('Verifying that the "Upload & Share Files" modal is not displayed.')
+        assert file_modal.is_not_displayed
+
+        logging.info('Verifying that the confirmation modal is not visible.')
+        assert confirmation_modal.is_not_displayed
+
+        drive_files_page.click_main_upload_file_button()
+
+        logging.info('Verifying that the "Upload & Share Files" modal is displayed.')
+        assert file_modal.is_displayed
+        assert file_modal.header_text == "Upload & Share Files"
+
+        expected_help_text = (
+            "Upload a file to share with your organization on FiscalNote. After uploading, you can organize your"
+            " files with labels."
+        )
+        logging.info(f'Verifying that the file modal has the following help text: {expected_help_text}')
+        assert file_modal.help_text == expected_help_text
+
+        logging.info('Verifying that the file input is present.')
+        assert file_modal.file_input
+
+        logging.info('Verifying that no successful file uploads are visible.')
+        assert file_modal.successful_file_uploads == []
+
+        logging.info('Verifying that no failed file uploads are visible.')
+        assert file_modal.failed_file_uploads == []
+
+        logging.info('Verifying that no labels have been added.')
+        assert file_modal.added_labels == []
+
+        logging.info('Verifying that no linked items have been added.')
+        assert file_modal.added_linked_items == []
+
+        logging.info('Verifying that the "Confirmation" modal is not visible.')
+        assert confirmation_modal.is_not_displayed
+
+        file_modal.click_close_icon()
+
+        logging.info('Verifying that the "Confirmation" modal is visible.')
+        assert confirmation_modal.is_displayed
+        assert confirmation_modal.header == "Confirmation"
+
+        confirmation_modal.click_cancel_button()
+
+        logging.info('Verifying that the file modal is still visible.')
+        assert file_modal.is_displayed
+
+        file_modal.click_close_icon()
+        confirmation_modal.click_confirm_button()
+
+        logging.info('Verifying that the "Confirmation" modal is not visible.')
+        assert confirmation_modal.is_not_displayed
+
+        logging.info('Verifying that the "Upload & Share Files" modal is not displayed.')
+        assert file_modal.is_not_displayed
