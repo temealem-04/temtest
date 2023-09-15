@@ -1,0 +1,247 @@
+import logging
+
+from . import locators
+from pages.base_page import BasePage
+from tests import config
+
+from selenium.webdriver.common.keys import Keys
+from time import sleep
+
+
+class DriveFilesPage(BasePage):
+    @property
+    def add_label_button(self):
+        return self._find_clickable_element(locators.ADD_LABEL_BUTTON)
+
+    @property
+    def add_to_issue_button(self):
+        return self._find_clickable_element(locators.ADD_TO_ISSUE_BUTTON)
+
+    @property
+    def clear_filters_button(self):
+        return self._find_clickable_element(locators.CLEAR_FILTERS_BUTTON)
+
+    @property
+    def close_file_preview_link(self):
+        return self._find_visible_element(locators.CLOSE_FILE_PREVIEW_LINK)
+
+    @property
+    def close_success_banner_icon(self):
+        return self._find_visible_element(locators.CLOSE_SUCCESS_BANNER_ICON)
+
+    @property
+    def confirmation_modal_ok_button(self):
+        return self._find_clickable_element(locators.CONFIRMATION_MODAL_OK_BUTTON)
+
+    @property
+    def delete_button(self):
+        return self._find_visible_element(locators.DELETE_BUTTON)
+
+    @property
+    def empty_state_description(self):
+        return self._find_visible_element(locators.EMPTY_STATE_DESCRIPTION)
+
+    @property
+    def empty_state_header(self):
+        return self._find_visible_element(locators.EMPTY_STATE_HEADER)
+
+    @property
+    def empty_state_upload_file_button(self):
+        return self._find_visible_element(locators.EMPTY_STATE_UPLOAD_FILE_BUTTON)
+
+    @property
+    def file_preview_iframe(self):
+        return self._find_clickable_element(locators.FILE_PREVIEW_IFRAME)
+
+    @property
+    def file_preview_image(self):
+        return self._find_clickable_element(locators.FILE_PREVIEW_IMAGE)
+
+    @property
+    def file_preview_is_displayed(self):
+        return self._is_displayed(locators.FILE_PREVIEW_CONTAINER, timeout=3)
+
+    @property
+    def file_preview_is_not_displayed(self):
+        return self._is_not_displayed(locators.FILE_PREVIEW_CONTAINER, timeout=5)
+
+    @property
+    def file_preview_help_text(self):
+        file_preview = self._find_clickable_element(locators.FILE_PREVIEW_CONTAINER)
+
+        return file_preview.text.strip()
+
+    @property
+    def flash_message(self):
+        return self._find_visible_element(locators.FLASH_MESSAGE)
+
+    @property
+    def is_visible(self):
+        self._wait_for_element_to_disappear(locators.SPINNER, timeout=5)
+
+        return all(
+            [
+                self._is_displayed(locators.PAGE_HEADER,
+                                   timeout=5),
+                self._is_displayed(locators.MAIN_UPLOAD_FILE_BUTTON,
+                                   timeout=5)
+            ]
+        )
+
+    @property
+    def label_filter_apply_button(self):
+        return self._find_visible_element(locators.LABEL_FILTER_APPLY_BUTTON)
+
+    @property
+    def label_filter_container(self):
+        return self._find_visible_element(locators.LABEL_FILTER_CONTAINER)
+
+    @property
+    def label_filter_button(self):
+        return self._find_visible_element(locators.LABEL_FILTER_BUTTON)
+
+    @property
+    def label_filter_input(self):
+        return self._find_visible_element(locators.LABEL_FILTER_INPUT)
+
+    @property
+    def label_input(self):
+        return self._find_visible_element(locators.LABEL_INPUT)
+
+    @property
+    def label_save_button(self):
+        return self._find_clickable_element(locators.LABEL_SAVE_BUTTON)
+
+    @property
+    def main_upload_file_button(self):
+        return self._find_visible_element(locators.MAIN_UPLOAD_FILE_BUTTON)
+
+    @property
+    def page_header(self):
+        return self._find_visible_element(locators.PAGE_HEADER)
+
+    @property
+    def select_all_dropdown_toggle(self):
+        return self._find_clickable_element(locators.SELECT_ALL_DROPDOWN_TOGGLE)
+
+    @property
+    def select_all_on_current_page_option(self):
+        return self._find_clickable_element(locators.SELECT_ALL_ON_CURRENT_PAGE_OPTION)
+
+    @property
+    def total_file_count(self):
+        return int(self._find_visible_element(locators.TOTAL_FILE_COUNT).text)
+
+    @property
+    def visible_files(self):
+        return [file.text for file in self._find_many(locators.VISIBLE_FILE)]
+
+    @property
+    def visible_file_count(self):
+        self._wait_for_element_to_disappear(locators.SPINNER, timeout=5)
+
+        return len(self._find_many(locators.FILE_TABLE_ROW))
+
+    def add_files_to_issue(self, issue_name):
+        self.add_to_issue_button.click()
+        self._type(locators.ADD_TO_ISSUE_SEARCH_INPUT, issue_name)
+        self._click(locators.issue_dropdown_option_by_issue_name(issue_name))
+        assert self._is_displayed(locators.added_to_issue_icon_by_issue_name(issue_name), timeout=5)
+
+    def add_label(self, label, save=False):
+        logging.info(f'Adding label with text "{label}"')
+
+        self.add_label_button.click()
+        self.label_input.send_keys(label)
+        assert self._is_displayed(locators.label_by_label_text(label), timeout=10)
+
+        self._find_visible_element(locators.label_by_label_text(label)).click()
+        assert self._is_displayed(locators.added_label_by_label_text(label), timeout=10)
+
+        if save:
+            self.label_save_button.click()
+            self._wait_for_element_to_disappear(locators.LABEL_SAVE_BUTTON, timeout=5)
+
+    def add_labels(self, labels, save=False):
+        self.add_label_button.click()
+
+        for label in labels:
+            self.label_input.send_keys(label)
+            assert self._is_displayed(locators.label_by_label_text(label), timeout=10)
+
+            self._click(locators.label_by_label_text(label))
+            assert self._is_displayed(locators.added_label_by_label_text(label), timeout=10)
+
+        if save:
+            self.label_save_button.click()
+            self._wait_for_element_to_disappear(locators.LABEL_SAVE_BUTTON, timeout=5)
+
+    def click_clear_filters_button(self):
+        logging.info('Clicking "Clear Filters" button.')
+        self.clear_filters_button.click()
+        self._wait_for_element_to_disappear(locators.SPINNER, timeout=5)
+
+    def click_close_file_preview_link(self):
+        logging.info('Clicking "FiscalNote Shared Files" link to close file preview.')
+        self.close_file_preview_link.click()
+
+    def click_empty_state_upload_file_button(self):
+        logging.info('Clicking empty state "Upload File" button.')
+        self.empty_state_upload_file_button.click()
+
+    def click_main_upload_file_button(self):
+        logging.info('Clicking main "Upload File" button.')
+        self.main_upload_file_button.click()
+
+    def close_success_banner(self):
+        logging.info('Closing the success banner.')
+        self.close_success_banner_icon.click()
+        self._wait_for_element_to_disappear(locators.SUCCESS_BANNER, timeout=5)
+
+    def delete_selected_files(self):
+        logging.info('Deleting selected files.')
+        self.delete_button.click()
+        self.confirmation_modal_ok_button.click()
+
+    def filter_by_labels(self, labels):
+        for label in labels:
+            logging.info(f'Toggling label filter for label "{label}"')
+
+            self.label_filter_button.click()
+            self.label_filter_input.send_keys(label)
+            sleep(1)
+            self.label_filter_input.send_keys(Keys.ENTER)
+            self.label_filter_input.send_keys(Keys.ESCAPE)
+            self.label_filter_apply_button.click()
+
+        self._pause_for_animation()
+
+    def labels_added_to_file(self, file_name):
+        return [label.text for label in self._find_many(locators.labels_added_to_file(file_name))]
+
+    def navigate(self):
+        drive_files_page_url = f'{config.base_ui_url}/files'
+
+        logging.info(f'Navigating to {drive_files_page_url}')
+        self.driver.get(drive_files_page_url)
+
+    def open_file_preview(self, file_name):
+        logging.info(f'Opening file preview for file "{file_name}"')
+        self._find_clickable_element(locators.file_name_link_by_file_name(file_name)).click()
+        assert self._is_displayed(locators.FILE_PREVIEW_CONTAINER, timeout=3)
+
+    def open_fly_out_pane_for_file(self, file_name):
+        logging.info(f'Opening fly-out pane for file with name "{file_name}"')
+        self._hover(self._find_visible_element(locators.file_table_row_by_file_name(file_name)))
+        self._find_clickable_element(locators.edit_file_icon_by_file_name(file_name)).click()
+        assert self._is_displayed(locators.FLY_OUT_PANE_CONTAINER, timeout=5)
+        self._pause_for_animation()
+
+    def select_all_files_on_current_page(self):
+        logging.info('Selecting all files.')
+        self.select_all_dropdown_toggle.click()
+        self.select_all_on_current_page_option.click()
+
+    def select_file(self, file_name):
+        logging.info(f'Clicking checkbox for file with name "{file_name}"')
+        self._click(locators.checkbox_by_file_name(file_name))
