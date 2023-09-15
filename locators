@@ -1,0 +1,176 @@
+from selenium.webdriver.common.by import By
+
+ADD_LABEL_BUTTON = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "label-popover")]//span[contains(@class, "fn-popover__trigger")]'
+}
+
+ADD_TO_ISSUE_BUTTON = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "fn-dropdown-mini__trigger")]'
+}
+
+ADD_TO_ISSUE_SEARCH_INPUT = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "fn-dropdown-mini")]//input[contains(@class, "search-input")]'
+}
+
+ADDED_LABEL = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "label-selection__wrapper")]//span[contains(@class, "label__bubble")]//p'
+}
+
+CLEAR_FILTERS_BUTTON = {
+    'by': By.XPATH,
+    'value': '//button[contains(text(), "Clear Filters")]'
+}
+
+CLOSE_FILE_PREVIEW_LINK = {
+    'by': By.CSS_SELECTOR,
+    'value': '.document-modal-header--back-button a'
+}
+
+CLOSE_SUCCESS_BANNER_ICON = {
+    'by': By.CSS_SELECTOR,
+    'value': '.fn-banner .fa-times'
+}
+
+CONFIRMATION_MODAL_OK_BUTTON = {
+    'by': By.XPATH,
+    'value':
+        (
+            '//h4[contains(text(), "File")]'
+            '//ancestor::div[contains(@class, "modal-content")]'
+            '//button[contains(@class, "btn-success")]'
+        )
+}
+
+DELETE_BUTTON = {
+    'by': By.XPATH,
+    'value': '//i[@class="fa fa-trash"]//ancestor::button'
+}
+
+EMPTY_STATE_DESCRIPTION = {
+    'by': By.XPATH,
+    'value': '//h5[@class="fn-table-empty__description"]'
+}
+
+EMPTY_STATE_HEADER = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "fn-table-empty")]//h3'
+}
+
+EMPTY_STATE_UPLOAD_FILE_BUTTON = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "fn-table-empty")]//a[contains(@class, "btn-success")]'
+}
+
+FILE_PREVIEW_CONTAINER = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "document-modal-wrapper")]'
+}
+
+FILE_PREVIEW_IFRAME = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "document-modal-wrapper")]//iframe'
+}
+
+FILE_PREVIEW_IMAGE = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "document-modal-wrapper")]//img'
+}
+
+FILE_TABLE_ROW = {
+    'by': By.XPATH,
+    'value': '//table[contains(@class, "table-content")]//tr'
+}
+
+FLASH_MESSAGE = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "fn-banner")]//p'
+}
+
+FLY_OUT_PANE_CONTAINER = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "quick-show__container")]'
+}
+
+LABEL_FILTER_APPLY_BUTTON = {
+    'by': By.XPATH,
+    'value':
+        (
+            '//span[contains(text(), "Labels")]'
+            '//following-sibling::div[contains(@class, "popover")]'
+            '//button[contains(@class, "btn-success")]'
+        )
+}
+
+LABEL_FILTER_CONTAINER = {
+    'by': By.XPATH,
+    'value': '//span[contains(text(), "Labels")]//following-sibling::div[contains(@class, "popover")]'
+}
+
+LABEL_FILTER_BUTTON = {
+    'by': By.XPATH,
+    'value': '//span[contains(text(), "Labels")]'
+}
+
+LABEL_FILTER_INPUT = {
+    'by': By.XPATH,
+    'value': '//span[contains(text(), "Labels")]//following-sibling::div//input[@type="text"]'
+}
+
+LABEL_INPUT = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "label-selection")]//input'
+}
+
+LABEL_SAVE_BUTTON = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "label-selection")]//button[contains(@class, "btn-success")]'
+}
+
+MAIN_UPLOAD_FILE_BUTTON = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "fn-table-toolbar")]//button[contains(@class, "btn-success")]',
+}
+
+MODAL_CONTAINER = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "modal-content")]'
+}
+
+PAGE_HEADER = {
+    'by': By.XPATH,
+    'value': '//div[@class="documents-table-header__name"]'
+}
+
+SELECT_ALL_DROPDOWN_TOGGLE = {
+    'by': By.XPATH,
+    'value': '//span[contains(@class, "content-table__select-all")]'
+}
+
+SELECT_ALL_ON_CURRENT_PAGE_OPTION = {
+    'by': By.XPATH,
+    'value': '//a[contains(text(), "Select all on current page")]'
+}
+
+SPINNER = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "spinner")]'
+}
+
+SUCCESS_BANNER = {
+    'by': By.CLASS_NAME,
+    'value': 'fn-banner'
+}
+
+TOTAL_FILE_COUNT = {
+    'by': By.XPATH,
+    'value': '//span[@class="results-count"]'
+}
+
+VISIBLE_FILE = {
+    'by': By.XPATH,
+    'value': '//div[contains(@class, "document-filename__display")]//p'
+}
