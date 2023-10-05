@@ -1,0 +1,232 @@
+import pytest
+
+from pages import (
+    AccountSettingsPage,
+    ActionsPage,
+    CalendarMapPage,
+    CalendarPage,
+    CalendarSessionDatesPage,
+    ContactsOrganizationsPage,
+    ContactsPeoplePage,
+    DirectoryPage,
+    DiscoveryAlertPage,
+    DriveFilesPage,
+    DriveLinksPage,
+    EntityPage,
+    EntityPageV2,
+    ExportsPage,
+    ForgotPasswordPage,
+    HomePage,
+    IssueActions,
+    IssueBrief,
+    IssueData,
+    IssueFiles,
+    IssueLinks,
+    IssueOverview,
+    IssuePreferences,
+    IssueStakeholders,
+    IssuesListPage,
+    LabelsSearchPage,
+    LoginLandingPage,
+    LoginPage,
+    MailingListPage,
+    NotesPage,
+    ReportingPage,
+    ReportsPage,
+    SearchPage,
+    SearchPageV2,
+    SharePage,
+    SocialMediaMonitoringPage,
+    SSOLoginPage,
+    TwitterPage
+)
+
+
+@pytest.fixture(scope='session')
+def account_settings_page(session_driver):
+    return AccountSettingsPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def actions_page(session_driver):
+    return ActionsPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def calendar_map_page(session_driver):
+    return CalendarMapPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def calendar_page(session_driver):
+    return CalendarPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def calendar_session_dates_page(session_driver):
+    return CalendarSessionDatesPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def contacts_people_page(session_driver):
+    return ContactsPeoplePage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def contacts_organizations_page(session_driver):
+    return ContactsOrganizationsPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def directory_page(session_driver):
+    return DirectoryPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def discovery_alerts_page(session_driver):
+    return DiscoveryAlertPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def exports_page(session_driver):
+    return ExportsPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def drive_files_page(session_driver):
+    return DriveFilesPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def drive_links_page(session_driver):
+    return DriveLinksPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def entity_page(session_driver):
+    return EntityPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def entity_page_v2(session_driver):
+    return EntityPageV2(session_driver)
+
+
+@pytest.fixture(scope='session')
+def forgot_password_page(session_driver):
+    return ForgotPasswordPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def home_page(session_driver):
+    return HomePage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def issue_actions(session_driver):
+    return IssueActions(session_driver)
+
+
+@pytest.fixture(scope='session')
+def issue_brief(session_driver):
+    return IssueBrief(session_driver)
+
+
+@pytest.fixture(scope='session')
+def issue_data(session_driver):
+    return IssueData(session_driver)
+
+
+@pytest.fixture(scope='session')
+def issue_files(session_driver):
+    return IssueFiles(session_driver)
+
+
+@pytest.fixture(scope='session')
+def issue_links(session_driver):
+    return IssueLinks(session_driver)
+
+
+@pytest.fixture(scope='session')
+def issue_overview(session_driver):
+    return IssueOverview(session_driver)
+
+
+@pytest.fixture
+def issue_preferences(session_driver):
+    return IssuePreferences(session_driver)
+
+
+@pytest.fixture
+def issue_stakeholders(session_driver):
+    return IssueStakeholders(session_driver)
+
+
+@pytest.fixture(scope='session')
+def issues_list_page(session_driver):
+    return IssuesListPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def notes_page(session_driver):
+    return NotesPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def labels_search_page(session_driver):
+    return LabelsSearchPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def login_landing_page(session_driver):
+    return LoginLandingPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def login_page(session_driver):
+    return LoginPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def mailing_list_page(session_driver):
+    return MailingListPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def reporting_page(session_driver):
+    return ReportingPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def reports_page(session_driver):
+    return ReportsPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def search_page(session_driver):
+    return SearchPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def search_page_v2(session_driver):
+    return SearchPageV2(session_driver)
+
+
+@pytest.fixture(scope='session')
+def share_page(session_driver):
+    return SharePage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def social_media_monitoring_page(session_driver):
+    return SocialMediaMonitoringPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def sso_login_page(login_landing_page, session_driver):
+    return SSOLoginPage(session_driver)
+
+
+@pytest.fixture(scope='session')
+def twitter_page(session_driver):
+    return TwitterPage(session_driver)
