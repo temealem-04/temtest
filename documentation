@@ -1,0 +1,24 @@
+Automation Framework Documentation
+Overview
+This documentation provides an overview of our automation framework, which is designed for automated testing and quality assurance. The framework leverages the following tools and technologies to streamline the testing process and ensure the quality of our software.
+
+Tools and Technologies
+1. Integrated Development Environment (IDE): PyCharm
+Description: We utilize PyCharm as our Integrated Development Environment (IDE) for test script development and management. PyCharm provides a user-friendly interface and numerous features that facilitate code writing, debugging, and project organization.
+
+Usage: PyCharm serves as the primary IDE for our test automation team. It is used for writing and maintaining test scripts, managing project dependencies, and version control integration.
+
+2. Web Automation: Selenium WebDriver
+Description: Selenium WebDriver is a fundamental tool for automating web browsers, which is essential for web application testing. It allows us to interact with web elements, simulate user interactions, and perform various testing scenarios.
+
+Usage: Our framework integrates Selenium WebDriver for web testing. We use Selenium's features to locate and manipulate web elements, automate browser interactions, and validate the behavior of web applications.
+
+3. Testing Framework: pytest
+Description: Our testing framework is built on pytest, a versatile and widely used testing framework for Python. pytest simplifies test case management, execution, and reporting, making it a powerful tool for test automation.
+
+Usage: All test scripts within our framework are written in pytest format. pytest offers straightforward syntax, powerful test discovery, and a wide range of plugins that enhance our testing capabilities.
+
+4. Web Browser Drivers: Chrome Driver and Edge Driver
+Description: Chrome Driver and Edge Driver are WebDriver executables used to automate Google Chrome and Microsoft Edge browsers, respectively. These drivers facilitate cross-browser testing and ensure compatibility with different web browsers.
+
+Usage: Our framework supports automated testing on both Google Chrome and Microsoft Edge browsers. We use the respective WebDriver executables to control browser instances and execute test cases.
