@@ -1,0 +1,33 @@
+What is the Page Object Model (POM)?
+
+Imagine you're testing a website by clicking buttons, entering text, and checking if everything works as expected. This can become a bit messy and confusing, especially if you have a lot of web pages to test. The Page Object Model, or POM, is like a smart way of organizing your testing.
+
+How Does It Work?
+
+Page Objects: With POM, you create a separate "Page Object" for each web page you want to test. For example, you might have a Page Object for the login page, another one for the home page, and so on.
+
+Methods: Inside each Page Object, you write methods (like little action instructions) for what you want to do on that page. For the login page, you'd have methods like "enterUsername," "enterPassword," and "clickLoginButton."
+
+Element Locators: You tell your Page Object how to find the web elements on the page. These elements might be buttons, text fields, or anything else you want to interact with. You use special codes to describe where the elements are on the page.
+
+Why is POM Useful?
+
+Here's the magic: Instead of writing long, confusing lines of code in your test scripts, you use these Page Objects. When you want to do something on a web page, you just call the method from the Page Object. It's like having a set of clear, simple instructions for each page.
+
+Benefits of POM:
+
+Easy to Read: Your test scripts become much easier to read and understand. It's like reading a story instead of a technical manual.
+
+Easy to Change: If the website changes, you only need to update the Page Object for that page. You don't have to change every test script.
+
+Reuse: You can use the same Page Objects in different tests, saving you time and effort.
+
+Less Mess: POM keeps your code organized and less messy. It's like having a tidy desk instead of a messy one.
+
+Example:
+
+Let's say you have a login page, and you want to test if it works. In your test script, instead of writing complex code to interact with the page, you simply say, "Use the login Page Object, enter the username, enter the password, and click the login button."
+
+This makes your test scripts clear, easy to write, and easy to change when needed.
+
+So, in a nutshell, the Page Object Model is like having a library of clear, simple instructions for each page on a website, making your testing job much easier and organized.
