@@ -1,0 +1,323 @@
+import logging
+import re
+
+from datetime import datetime
+from selenium.webdriver.support.select import Select
+from selenium.common.exceptions import NoSuchElementException
+
+from . import locators
+from pages.base_page import BasePage
+from tests import config
+
+
+class SocialMediaMonitoringPage(BasePage):
+    @property
+    def current_page(self):
+        return self._get_text_from_element(locators.CURRENT_PAGE)
+
+    @property
+    def filter_titles(self):
+        return self._get_text_from_elements(locators.FILTER_TITLE)
+
+    @property
+    def from_field_value(self):
+        return self._get_attribute_from_element(locators.FROM_FIELD, 'value')
+
+    @property
+    def jurisdiction_filter_options(self):
+        labels = self._get_text_from_elements(locators.JURISDICTION_FILTER_OPTION_LABEL)
+        checked_statuses = [
+            checkbox.is_selected()
+            for checkbox in self._find_present_elements(locators.JURISDICTION_FILTER_OPTION_CHECKBOX)
+        ]
+
+        return [(labels[index], checked_statuses[index]) for index in range(len(labels))]
+
+    @property
+    def name_keyword_or_handle_filter_placeholder(self):
+        return self._get_attribute_from_element(locators.NAME_KEYWORD_OR_HANDLE_INPUT, 'placeholder')
+
+    @property
+    def name_keyword_or_handle_filter_value(self):
+        return self._get_attribute_from_element(locators.NAME_KEYWORD_OR_HANDLE_INPUT, 'value')
+
+    @property
+    def no_access_modal_is_visible(self):
+        return self._is_displayed(locators.NO_ACCESS_MODAL, timeout=10)
+
+    @property
+    def no_access_modal_is_not_visible(self):
+        return self._is_not_displayed(locators.NO_ACCESS_MODAL, timeout=10)
+
+    @property
+    def no_access_modal_message_one(self):
+        return self._get_text_from_element(locators.NO_ACCESS_MODAL_MESSAGE_1)
+
+    @property
+    def no_access_modal_message_two(self):
+        return self._get_text_from_element(locators.NO_ACCESS_MODAL_MESSAGE_2)
+
+    @property
+    def page_header(self):
+        return self._get_text_from_element(locators.PAGE_HEADER)
+
+    @property
+    def page_range(self):
+        start, end = self._get_text_from_element(locators.PAGE_RANGE).split()[0].split('-')
+
+        return f'{start} - {end}'
+
+    @property
+    def page_right_button(self):
+        return self._find_clickable_element(locators.PAGE_RIGHT_BUTTON, timeout=10)
+
+    @property
+    def selected_sort_by_text(self):
+        return Select(self._find_visible_element(locators.SORT_BY_DROPDOWN)).first_selected_option.text.strip()
+
+    @property
+    def show_more_button_is_visible(self):
+        return self._is_displayed(locators.JURISDICTIONS_SHOW_MORE_BUTTON, timeout=10)
+
+    @property
+    def show_more_button_text(self):
+        return self._get_text_from_element(locators.JURISDICTIONS_SHOW_MORE_BUTTON)
+
+    @property
+    def to_field_value(self):
+        return self._get_attribute_from_element(locators.TO_FIELD, 'value')
+
+    @property
+    def visible_tweet_card_count(self):
+        return len(self._find_visible_elements(locators.RENDERED_TWEET))
+
+    @property
+    def visible_tweet_datetimes(self):
+        tweets = self.visible_tweets
+        tweet_datetimes = []
+
+        for tweet in tweets:
+            try:
+                retweeted_timestamp = re.search(r"(\w{3} \d+, \d{4} \d+:\d+ \w{2})", tweet).group(1)
+                tweet_datetime = datetime.strptime(retweeted_timestamp, "%b %d, %Y %H:%M %p")
+                tweet_datetimes.append(tweet_datetime)
+                logging.info(f"Retweeted time added: {tweet_datetime}.")
+            except AttributeError:
+                try:
+                    timestamp = re.search(r"(\d+:\d+ \w{2} · \w{3} \d+, \d{4})", tweet).group(1)
+                    tweet_datetime = datetime.strptime(timestamp, "%H:%M %p · %b %d, %Y")
+                    tweet_datetimes.append(tweet_datetime)
+                    logging.info(f"Tweeted time added: {tweet_datetime}.")
+                except AttributeError:
+                    logging.info("No time added.")
+                    pass
+
+        return tweet_datetimes
+
+    @property
+    def visible_tweet_footers(self):
+        return [self.get_footer_data_by_position(position) for position in range(1, self.visible_tweet_card_count + 1)]
+
+    @property
+    def visible_tweets(self):
+        cards = self._find_visible_elements(locators.CARD)
+        tweets = []
+
+        for idx, card in enumerate(cards):
+            self.wait_for_twitter_feeds_to_appear()
+            tweet_text = ""
+
+            try:
+                retweeted_time = card.find_element_by_css_selector("header a:last-child").text
+                tweet_text += f"{retweeted_time} "
+
+                try:
+                    tweet_embed = card.find_element_by_css_selector("iframe")
+
+                    try:
+                        self.driver.switch_to.frame(tweet_embed)
+                        tweet_text += self.driver.find_element_by_id("app").text
+                        tweet_text = " ".join(tweet_text.split())
+                        tweets.append(tweet_text)
+                        self.driver.switch_to.default_content()
+                    except NoSuchElementException:
+                        pass
+
+                except NoSuchElementException:
+                    logging.info("Twitter is unable to load this Tweet.")
+                    tweets.append("Twitter is unable to load this Tweet.")
+
+            except NoSuchElementException:
+                try:
+                    tweet_embed = card.find_element_by_css_selector("iframe")
+
+                    try:
+                        self.driver.switch_to.frame(tweet_embed)
+                        tweet_text = self.driver.find_element_by_id("app").text
+                        tweet_text = " ".join(tweet_text.split())
+                        tweets.append(tweet_text)
+                        self.driver.switch_to.default_content()
+                    except NoSuchElementException:
+                        pass
+
+                except NoSuchElementException:
+                    logging.info("Twitter is unable to load this Tweet.")
+                    tweets.append("Twitter is unable to load this Tweet.")
+
+        return tweets
+
+    def click_next_page_button(self):
+        logging.info("Click the next page button.")
+        self._scroll_to_bottom_of_page()
+        self._click(locators.PAGE_RIGHT_BUTTON)
+        self.wait_for_loading_state_to_appear_and_disappear()
+        self.wait_for_twitter_feeds_to_appear()
+
+    def click_page(self, desired_page):
+        logging.info(f"Click page {desired_page}.")
+        self._scroll_to_bottom_of_page()
+        self._click(locators.page_by_page_number(desired_page))
+        self.wait_for_loading_state_to_appear_and_disappear()
+        self.wait_for_twitter_feeds_to_appear()
+
+    def click_show_more_jurisdictions_button(self):
+        logging.info("Click the 'Show More' button for the 'Jurisdictions' filter.")
+        self._click(locators.JURISDICTIONS_SHOW_MORE_BUTTON)
+
+    def click_tweet_card_footer_by_position(self, position):
+        logging.info(f"Click the card footer for the tweet in position {position}.")
+        self._click(locators.tweet_footer_by_position(position))
+
+    def click_tweet_card_main_content_background_by_position(self, position):
+        logging.info(f"Click the card main content background for the tweet in position {position}.")
+        self._click(locators.tweet_main_content_background_by_position(position))
+
+    def click_view_profile_link_by_position(self, position):
+        logging.info(f"Click the 'View Profile' link in position {position}.")
+        self._click_with_javascript(locators.view_profile_link_by_position(position))
+
+    def close_no_access_modal(self):
+        logging.info("Click the 'X' icon on the no access modal.")
+        self._click_with_javascript(locators.NO_ACCESS_MODAL_CLOSE_ICON)
+
+    def enter_name_keyword_or_handle(self, name_keyword_or_handle):
+        logging.info(f"Enter the text '{name_keyword_or_handle}' in the 'Name, Keyword, or Handle' field.")
+        self._clear_input(locators.NAME_KEYWORD_OR_HANDLE_INPUT)
+        self._type(locators.NAME_KEYWORD_OR_HANDLE_INPUT, name_keyword_or_handle)
+        self._press_enter_key(locators.NAME_KEYWORD_OR_HANDLE_INPUT)
+        self.wait_for_loading_state_to_appear_and_disappear()
+
+    def get_filter_options_by_filter_title(self, filter_title):
+        labels = self._get_text_from_elements(locators.filter_option_label_by_filter_title(filter_title))
+        checked_statuses = [
+            checkbox.is_selected()
+            for checkbox in self._find_present_elements(locators.filter_option_checkbox_by_filter_title(filter_title))
+        ]
+
+        return [(labels[index], checked_statuses[index]) for index in range(len(labels))]
+
+    def get_footer_data_by_position(self, position):
+        keys = self._get_text_from_elements(locators.footer_key_by_position(position))
+        values = self._get_text_from_elements(locators.footer_value_by_position(position))
+
+        return {keys[index].lower(): values[index]
+                for index in range(len(keys))}
+
+    def get_tweet_text_by_position(self, position):
+        self.driver.switch_to.frame(self._find_visible_element(locators.tweet_by_position(position - 1)))
+        tweet_text = self.driver.find_element_by_id('app').text
+        self.driver.switch_to.default_content()
+
+        return tweet_text
+
+    def get_view_profile_link_url_by_position(self, position):
+        return self._find_visible_element(locators.view_profile_link_by_position(position)).get_attribute("href")
+
+    def navigate(self):
+        social_media_monitoring_url = f"{config.base_ui_url}/social-media"
+
+        logging.info(f"Navigate to {social_media_monitoring_url}.")
+        self.driver.get(social_media_monitoring_url)
+
+    def navigate_with_filters(self, from_date=None):
+        social_media_monitoring_url = f"{config.base_ui_url}/social-media?"
+
+        if from_date:
+            social_media_monitoring_url += f"from={from_date}"
+
+        logging.info(f"Navigate to {social_media_monitoring_url}.")
+        self.driver.get(social_media_monitoring_url)
+
+    def open_tweet_by_position(self, position):
+        logging.info(f"Open tweet in position {position}.")
+        self.driver.switch_to.frame(self._find_visible_element(locators.tweet_by_position(position - 1)))
+        self._click(locators.TWEET_TIMESTAMP)
+        self._wait_for_number_of_browser_tabs_to_equal(2)
+        self.driver.switch_to.window(self.driver.window_handles[1])
+
+    def set_sort_order(self, desired_sort_order):
+        logging.info(f"Set the sort order to '{desired_sort_order}'")
+        sort_by_dropdown = self._find_visible_element(locators.SORT_BY_DROPDOWN)
+        Select(sort_by_dropdown).select_by_visible_text(desired_sort_order)
+        self.wait_for_loading_state_to_appear_and_disappear()
+
+    def set_from_date(self, day, move_calendar_back=False, move_calendar_forward=False):
+        logging.info("Click the 'From' field in the 'Date Range' filter.")
+        self._click(locators.FROM_FIELD)
+
+        if move_calendar_back:
+            self._click(locators.CALENDAR_PREV_ICON)
+
+        if move_calendar_forward:
+            self._click(locators.CALENDAR_NEXT_ICON)
+
+        logging.info(f"Click the day with number {day}.")
+        self._click(locators.calendar_day_by_day_number(day))
+        self.wait_for_loading_state_to_appear_and_disappear()
+
+    def set_to_date(self, day, move_calendar_back=False, move_calendar_forward=False):
+        logging.info("Click the 'To' field in the 'Date Range' filter.")
+        self._click(locators.TO_FIELD)
+
+        if move_calendar_back:
+            self._click(locators.CALENDAR_PREV_ICON)
+
+        if move_calendar_forward:
+            self._click(locators.CALENDAR_NEXT_ICON)
+
+        logging.info(f"Click the day with number {day}.")
+        self._click(locators.calendar_day_by_day_number(day))
+        self.wait_for_loading_state_to_appear_and_disappear()
+
+    def toggle_filter_option(self, filter_title, filter_option):
+        logging.info(f"Toggle the '{filter_option}' option in the '{filter_title}' filter.")
+        self._click(locators.filter_option_by_filter_title_and_option_text(filter_title, filter_option))
+        self.wait_for_loading_state_to_appear_and_disappear()
+
+    def toggle_filter_options(self, filter_title, filter_options):
+        for filter_option in filter_options:
+            self.toggle_filter_option(filter_title, filter_option)
+
+    def toggle_jurisdiction_option(self, jurisdiction):
+        logging.info(f"Toggle the 'Jurisdiction' with text '{jurisdiction}.'")
+        self._click(locators.jurisdiction_filter_option_by_option_text(jurisdiction))
+        self.wait_for_loading_state_to_appear_and_disappear()
+
+    def toggle_jurisdiction_options(self, jurisdictions):
+        for jurisdiction in jurisdictions:
+            self.toggle_jurisdiction_option(jurisdiction)
+
+    def wait_for_loading_state_to_appear_and_disappear(self):
+        self._is_displayed(locators.LOADING_MESSAGE, timeout=5)
+        self._is_not_displayed(locators.LOADING_MESSAGE, timeout=10)
+
+    def wait_for_number_of_tweets_to_be_visible(self, expected_number):
+        return self._wait_for_number_of_elements_to_equal(locators.RENDERED_TWEET, expected_number)
+
+    def wait_for_page_to_equal(self, expected_page):
+        self._scroll_to_bottom_of_page()
+        return self._wait_for_text_in_element_to_equal(locators.CURRENT_PAGE, expected_page)
+
+    def wait_for_twitter_feeds_to_appear(self):
+        self._is_not_displayed(locators.LOADING_TWITTER_FEED, timeout=10)
+        self._is_displayed(locators.RENDERED_TWEET, timeout=5)
