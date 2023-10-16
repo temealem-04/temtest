@@ -1,0 +1,99 @@
+import logging
+import pytest
+
+
+@pytest.mark.regression
+@pytest.mark.social_media_monitoring_pagination
+class TestSocialMediaMonitoringPagination:
+    @pytest.fixture(autouse=True)
+    def set_up_and_tear_down(self, authenticated_driver, social_media_monitoring_page):
+        social_media_monitoring_page.navigate_with_filters(from_date="2020-08-01")
+        social_media_monitoring_page.wait_for_number_of_tweets_to_be_visible(10)
+
+    def test_user_can_load_additional_tweets_via_pagination(self, social_media_monitoring_page):
+        logging.info("Verify that the user is on the correct page of tweets.")
+        expected_page = "1"
+        actual_page = social_media_monitoring_page.wait_for_page_to_equal(expected_page)
+        logging.info(f"Expected page: {expected_page}")
+        logging.info(f"Actual page:   {actual_page}")
+        assert expected_page == actual_page
+
+        logging.info("Verify that the correct results range is displayed.")
+        expected_results_range = "1 - 10"
+        actual_results_range = social_media_monitoring_page.page_range
+        logging.info(f"Expected range: {expected_results_range}")
+        logging.info(f"Actual range:   {actual_results_range}")
+        assert expected_results_range == actual_results_range
+
+        page_one_tweets = social_media_monitoring_page.visible_tweets
+        duplicate_page_one_tweets = [tweet for tweet in page_one_tweets if page_one_tweets.count(tweet) > 1]
+        visible_tweets_count = len(page_one_tweets)
+
+        logging.info(f"Tweets from page 1: {page_one_tweets}")
+        logging.info("Verify that there are no duplicates on page 1.")
+        logging.info(f"Duplicate tweets: {duplicate_page_one_tweets}")
+        assert len(duplicate_page_one_tweets) == 0
+
+        logging.info("Verify that at least one non-deleted tweet is visible.")
+        logging.info(f"Visible tweet count: {visible_tweets_count}")
+        assert visible_tweets_count > 1
+
+        social_media_monitoring_page.click_next_page_button()
+        social_media_monitoring_page.wait_for_number_of_tweets_to_be_visible(10)
+
+        logging.info("Verify that the user is on the correct page of tweets.")
+        expected_page = "2"
+        actual_page = social_media_monitoring_page.wait_for_page_to_equal(expected_page)
+        logging.info(f"Expected page: {expected_page}")
+        logging.info(f"Actual page:   {actual_page}")
+        assert expected_page == actual_page
+
+        logging.info("Verify that the correct results range is displayed.")
+        expected_results_range = "11 - 20"
+        actual_results_range = social_media_monitoring_page.page_range
+        logging.info(f"Expected range: {expected_results_range}")
+        logging.info(f"Actual range:   {actual_results_range}")
+        assert expected_results_range == actual_results_range
+
+        page_two_tweets = social_media_monitoring_page.visible_tweets
+        duplicate_page_two_tweets = [tweet for tweet in page_two_tweets if page_two_tweets.count(tweet) > 1]
+        visible_tweets_count = len(page_two_tweets)
+
+        logging.info(f"Tweets from page 2: {page_two_tweets}")
+        logging.info("Verify that there are no duplicates on page 2.")
+        logging.info(f"Duplicate tweets: {duplicate_page_two_tweets}")
+        assert len(duplicate_page_two_tweets) == 0
+
+        logging.info("Verify that at least one non-deleted tweet is visible.")
+        logging.info(f"Visible tweet count: {visible_tweets_count}")
+        assert visible_tweets_count > 1
+
+        social_media_monitoring_page.click_page(3)
+        social_media_monitoring_page.wait_for_number_of_tweets_to_be_visible(10)
+
+        logging.info("Verify that the user is on the correct page of tweets.")
+        expected_page = "3"
+        actual_page = social_media_monitoring_page.wait_for_page_to_equal(expected_page)
+        logging.info(f"Expected page: {expected_page}")
+        logging.info(f"Actual page:   {actual_page}")
+        assert expected_page == actual_page
+
+        logging.info("Verify that the correct results range is displayed.")
+        expected_results_range = "21 - 30"
+        actual_results_range = social_media_monitoring_page.page_range
+        logging.info(f"Expected range: {expected_results_range}")
+        logging.info(f"Actual range:   {actual_results_range}")
+        assert expected_results_range == actual_results_range
+
+        page_three_tweets = social_media_monitoring_page.visible_tweets
+        duplicate_page_three_tweets = [tweet for tweet in page_three_tweets if page_three_tweets.count(tweet) > 1]
+        visible_tweets_count = len(page_three_tweets)
+
+        logging.info(f"Tweets from page 3: {page_three_tweets}")
+        logging.info("Verify that there are no duplicates on page 3.")
+        logging.info(f"Duplicate tweets: {duplicate_page_three_tweets}")
+        assert len(duplicate_page_three_tweets) == 0
+
+        logging.info("Verify that at least one non-deleted tweet is visible.")
+        logging.info(f"Visible tweet count: {visible_tweets_count}")
+        assert visible_tweets_count > 1
