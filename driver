@@ -79,3 +79,16 @@ def authenticated_driver(home_page, login_landing_page, login_page, session_driv
     assert home_page.is_displayed()
 
     yield session_driver
+   def _is_displayed(self, locator, timeout=0):
+        if timeout > 0:
+            try:
+                wait = WebDriverWait(self.driver, timeout)
+                wait.until(expected_conditions.visibility_of_element_located((locator['by'], locator['value'])))
+            except TimeoutException:
+                return False
+            return True
+        else:
+            try:
+                return self._find(locator).is_displayed()
+            except NoSuchElementException:
+                return False
