@@ -1,0 +1,43 @@
+from selenium import webdriver
+import time
+
+class ScrollHelper:
+    def __init__(self, driver):
+        self.driver = driver
+
+    def scroll_to_bottom(self):
+        # Get the current page's scroll height
+        last_height = self.driver.execute_script("return document.body.scrollHeight")
+
+        while True:
+            # Scroll down to the bottom
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            
+            # Wait for the page to load additional content
+            time.sleep(2)
+            
+            # Get the new page height
+            new_height = self.driver.execute_script("return document.body.scrollHeight")
+            
+            # If the height hasn't changed, we've reached the bottom
+            if new_height == last_height:
+                break
+
+            last_height = new_height
+
+# Example usage:
+
+# Initialize WebDriver (e.g., Chrome)
+driver = webdriver.Chrome()
+
+# Open a webpage
+driver.get('https://example.com')
+
+# Initialize ScrollHelper with the WebDriver
+scroll_helper = ScrollHelper(driver)
+
+# Call the method to scroll to the bottom
+scroll_helper.scroll_to_bottom()
+
+# Optionally, close the driver after use
+driver.quit()
