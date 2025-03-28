@@ -46,10 +46,18 @@ def pytest_sessionstart(session):
         raise Exception("Unrecognized environment.")
 
 import pytest
+import logging
 import pandas as pd
 
-# Store logs and test results
-log_entries = []
+# Configure logging
+logging.basicConfig(
+    filename="test_logs.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+# Store test results
 test_results = []
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -61,32 +69,34 @@ def pytest_runtest_makereport(item, call):
     test_name = item.name
     test_status = "Pass" if report.outcome == "passed" else "Fail"
     
-    # Store test result
     test_results.append([test_name, test_status])
-
-@pytest.fixture(autouse=True)
-def log_test_steps(request):
-    """Fixture to log each test's steps."""
-    test_name = request.node.name
-
-    def log_message(level, message):
-        log_entries.append([test_name, level, message])
-    
-    return log_message
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_sessionfinish(session, exitstatus):
-    """Save logs and test results to an Excel file after tests finish."""
+    """Convert log file + test results into an Excel file"""
+    log_file = "test_logs.log"
     excel_file = "test_logs.xlsx"
     
-    # Convert logs and results to DataFrames
-    df_logs = pd.DataFrame(log_entries, columns=["Test Name", "Level", "Message"])
-    df_results = pd.DataFrame(test_results, columns=["Test Name", "Status"])
-    
-    # Save both to separate sheets in the same Excel file
-    with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
-        df_logs.to_excel(writer, sheet_name="Logs", index=False)
-        df_results.to_excel(writer, sheet_name="Test Results", index=False)
+    log_entries = []
+    try:
+        with open(log_file, "r") as file:
+            for line in file:
+                parts = line.strip().split(" - ", 2)
+                if len(parts) == 3:
+                    timestamp, level, message = parts
+                    log_entries.append([timestamp, level, message])
 
-    print(f"\nTest logs and results saved to {excel_file}")
+        # Convert logs and results to DataFrames
+        df_logs = pd.DataFrame(log_entries, columns=["Timestamp", "Level", "Message"])
+        df_results = pd.DataFrame(test_results, columns=["Test Name", "Status"])
+        
+        # Save to Excel with two sheets
+        with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
+            df_logs.to_excel(writer, sheet_name="Logs", index=False)
+            df_results.to_excel(writer, sheet_name="Test Results", index=False)
+
+        print(f"\nLogs and test results saved to {excel_file}")
+
+    except FileNotFoundError:
+        print("Log file not found. No logs to save.")
     
