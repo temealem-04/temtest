@@ -48,24 +48,45 @@ def pytest_sessionstart(session):
 import pytest
 import pandas as pd
 
+# Store logs and test results
+log_entries = []
+test_results = []
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Capture test results (Pass/Fail)"""
+    outcome = yield
+    report = outcome.get_result()
+    
+    test_name = item.name
+    test_status = "Pass" if report.outcome == "passed" else "Fail"
+    
+    # Store test result
+    test_results.append([test_name, test_status])
+
+@pytest.fixture(autouse=True)
+def log_test_steps(request):
+    """Fixture to log each test's steps."""
+    test_name = request.node.name
+
+    def log_message(level, message):
+        log_entries.append([test_name, level, message])
+    
+    return log_message
+
 @pytest.hookimpl(tryfirst=True)
 def pytest_sessionfinish(session, exitstatus):
-    """Automatically convert logs to an Excel file after tests."""
-    log_file = "test_logs.log"
+    """Save logs and test results to an Excel file after tests finish."""
     excel_file = "test_logs.xlsx"
     
-    data = []
-    try:
-        with open(log_file, "r") as file:
-            for line in file:
-                parts = line.strip().split(" - ", 2)
-                if len(parts) == 3:
-                    timestamp, level, message = parts
-                    data.append([timestamp, level, message])
+    # Convert logs and results to DataFrames
+    df_logs = pd.DataFrame(log_entries, columns=["Test Name", "Level", "Message"])
+    df_results = pd.DataFrame(test_results, columns=["Test Name", "Status"])
+    
+    # Save both to separate sheets in the same Excel file
+    with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
+        df_logs.to_excel(writer, sheet_name="Logs", index=False)
+        df_results.to_excel(writer, sheet_name="Test Results", index=False)
 
-        df = pd.DataFrame(data, columns=["Timestamp", "Level", "Message"])
-        df.to_excel(excel_file, index=False)
-        print(f"\nLogs automatically saved to {excel_file}")
-
-    except FileNotFoundError:
-        print("Log file not found. No logs to save.")
+    print(f"\nTest logs and results saved to {excel_file}")
+    
