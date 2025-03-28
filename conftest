@@ -44,3 +44,28 @@ def pytest_sessionstart(session):
         config.base_ui_url = f'https://{config.environment}.fiscalnote.com'
     else:
         raise Exception("Unrecognized environment.")
+
+import pytest
+import pandas as pd
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_sessionfinish(session, exitstatus):
+    """Automatically convert logs to an Excel file after tests."""
+    log_file = "test_logs.log"
+    excel_file = "test_logs.xlsx"
+    
+    data = []
+    try:
+        with open(log_file, "r") as file:
+            for line in file:
+                parts = line.strip().split(" - ", 2)
+                if len(parts) == 3:
+                    timestamp, level, message = parts
+                    data.append([timestamp, level, message])
+
+        df = pd.DataFrame(data, columns=["Timestamp", "Level", "Message"])
+        df.to_excel(excel_file, index=False)
+        print(f"\nLogs automatically saved to {excel_file}")
+
+    except FileNotFoundError:
+        print("Log file not found. No logs to save.")
