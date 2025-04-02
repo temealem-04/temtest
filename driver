@@ -91,4 +91,51 @@ def authenticated_driver(home_page, login_landing_page, login_page, session_driv
             try:
                 return self._find(locator).is_displayed()
             except NoSuchElementException:
-                return False
+                return pytest.hookimpl(tryfirst=True)
+
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Convert log file + test results into an Excel file with Pass/Fail column."""
+    log_file = "test_logs.log"
+    excel_file = "test_logs.xlsx"
+
+    log_entries = []
+    try:
+        # Read log file entries
+        if os.path.exists(log_file):
+            with open(log_file, "r") as file:
+                for line in file:
+                    parts = line.strip().split(" - ", 2)
+                    if len(parts) == 3:
+                        timestamp, level, message = parts
+                        log_entries.append([timestamp, level, message])
+
+        # Load or create workbook
+        if os.path.exists(excel_file):
+            wb = openpyxl.load_workbook(excel_file)
+            sheet_name = "Test Logs"  # Explicitly use this sheet
+            if sheet_name in wb.sheetnames:
+                sheet = wb[sheet_name]
+            else:
+                sheet = wb.create_sheet(sheet_name)
+                sheet.append(["Timestamp", "Level", "Message", "Test Name", "Test Status"])  # Headers
+        else:
+            wb = openpyxl.Workbook()
+            sheet = wb.active
+            sheet.title = "Test Logs"
+            sheet.append(["Timestamp", "Level", "Message", "Test Name", "Test Status"])  # Headers
+
+        # Append log entries with test results
+        for i, log in enumerate(log_entries):
+            test_name = test_results[i][0] if i < len(test_results) else "Unknown"
+            test_status = test_results[i][1] if i < len(test_results) else "Unknown"
+            sheet.append(log + [test_name, test_status])  # Append data to the same sheet
+
+        wb.save(excel_file)
+
+    except Exception as e:
+        print(f"Error writing to Excel: {e}")
+
+
+
